@@ -1,12 +1,14 @@
 class labyrinth {
-    static X_SIZE = 101;
-    static Y_SIZE = 51;
+    static X_SIZE = 50 + 1;
+    static Y_SIZE = 26 + 1;
+    static GOAL_DIST = labyrinth.Y_SIZE / 4; // プレイヤーの初期生成位置からゴールまでの最低距離
     static NONE = "\u3000"; // 全角スペース
     static WALL = "\uff03"; // ＃
     static PLAYER_FORWARD = "\u25b2" // プレイヤー(上向き)
     static PLAYER_DOWNWARD = "\u25bc" // プレイヤー(下向き)
     static PLAYER_LEFT = "\u25c0" // プレイヤー(左向き)
     static PLAYER_RIGHT = "\u25b6" // プレイヤー(右向き)
+    static GOAL = "\u25a1" // ゴール
 
     // privateなプロパティ
     #masterViewMaze;
@@ -68,6 +70,20 @@ class labyrinth {
         this.#playerPositionY = Math.floor(Math.random() * ((labyrinth.Y_SIZE - 1) / 2)) * 2 + 1;
         this.#masterViewMaze[this.#playerPositionY][this.#playerPositionX] = labyrinth.PLAYER_DOWNWARD;
         this.#playerViewMaze[this.#playerPositionY][this.#playerPositionX] = labyrinth.PLAYER_DOWNWARD;
+
+        // ゴールを迷路に配置する
+        const goalPositonXRange = [...Array(labyrinth.X_SIZE - 1)]
+            .map((_, i) => i + 1)
+            .filter((e) => e < this.#playerPositionX - labyrinth.GOAL_DIST 
+            || this.#playerPositionX + labyrinth.GOAL_DIST < e );
+        const goalPositonYRange = [...Array(labyrinth.Y_SIZE - 1)]
+            .map((_, i) => i + 1)
+            .filter((e) => e < this.#playerPositionY - labyrinth.GOAL_DIST 
+            || this.#playerPositionY + labyrinth.GOAL_DIST < e );
+        const goalPositonX = goalPositonXRange[Math.floor(Math.random() * goalPositonXRange.length)];
+        const goalPositonY = goalPositonYRange[Math.floor(Math.random() * goalPositonYRange.length)];
+        this.#masterViewMaze[goalPositonY][goalPositonX] = labyrinth.GOAL;
+        this.#playerViewMaze[goalPositonY][goalPositonX] = labyrinth.GOAL;
 
         // 棒倒し法で迷路を作成する
         // 内壁を棒と見立てる
@@ -160,13 +176,21 @@ class labyrinth {
     }
 
     /**
-     * 引数のマスが何なのか調べる。
+     * 引数のマスが壁でないか調べる。
      * 
      * @param {調査したいX座標} x 
      * @param {調査したいY座標} y 
+     * @returns 壁でないか
      */
-    isMove(x, y) {
-        return this.#masterViewMaze[y][x] === labyrinth.NONE;
+    isNotWall(x, y) {
+        return this.#masterViewMaze[y][x] !== labyrinth.WALL;
+    }
+
+    /**
+     * プレイヤーがいるマスがゴールか調べる。
+     */
+    isGoal() {
+        return this.#masterViewMaze[this.#playerPositionY][this.#playerPositionX] === labyrinth.GOAL;
     }
 
     /**
@@ -177,20 +201,20 @@ class labyrinth {
     movePlayerPosition(key) {
         switch(key) {
             case "w":
-                this.#masterViewMaze[this.playerPositionY][this.playerPositionX] = labyrinth.NONE;
-                this.#masterViewMaze[--this.playerPositionY][this.playerPositionX] = labyrinth.PLAYER_FORWARD;
+                this.#masterViewMaze[this.#playerPositionY][this.#playerPositionX] = labyrinth.NONE;
+                this.#masterViewMaze[--this.#playerPositionY][this.#playerPositionX] = labyrinth.PLAYER_FORWARD;
                 break;
             case "s":
-                this.#masterViewMaze[this.playerPositionY][this.playerPositionX] = labyrinth.NONE;
-                this.#masterViewMaze[++this.playerPositionY][this.playerPositionX] = labyrinth.PLAYER_DOWNWARD;
+                this.#masterViewMaze[this.#playerPositionY][this.#playerPositionX] = labyrinth.NONE;
+                this.#masterViewMaze[++this.#playerPositionY][this.#playerPositionX] = labyrinth.PLAYER_DOWNWARD;
                 break;
             case "a":
-                this.#masterViewMaze[this.playerPositionY][this.playerPositionX] = labyrinth.NONE;
-                this.#masterViewMaze[this.playerPositionY][--this.playerPositionX] = labyrinth.PLAYER_LEFT;
+                this.#masterViewMaze[this.#playerPositionY][this.#playerPositionX] = labyrinth.NONE;
+                this.#masterViewMaze[this.#playerPositionY][--this.#playerPositionX] = labyrinth.PLAYER_LEFT;
                 break;
             case "d":
-                this.#masterViewMaze[this.playerPositionY][this.playerPositionX] = labyrinth.NONE;
-                this.#masterViewMaze[this.playerPositionY][++this.playerPositionX] = labyrinth.PLAYER_RIGHT;
+                this.#masterViewMaze[this.#playerPositionY][this.#playerPositionX] = labyrinth.NONE;
+                this.#masterViewMaze[this.#playerPositionY][++this.#playerPositionX] = labyrinth.PLAYER_RIGHT;
                 break;
         }
     }
