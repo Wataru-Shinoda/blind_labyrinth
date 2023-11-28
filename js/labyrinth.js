@@ -1,7 +1,8 @@
 class labyrinth {
-    static X_SIZE = 50 + 1;
-    static Y_SIZE = 26 + 1;
+    static X_SIZE = 50 + 1; // 迷路の横幅
+    static Y_SIZE = 26 + 1; // 迷路の縦幅
     static GOAL_DIST = labyrinth.Y_SIZE / 4; // プレイヤーの初期生成位置からゴールまでの最低距離
+    static FLARE_DIST = 6; // 照明弾の照射範囲
     static NONE = "\u3000"; // 全角スペース
     static WALL = "\uff03"; // ＃
     static PLAYER_FORWARD = "\u25b2" // プレイヤー(上向き)
@@ -29,18 +30,10 @@ class labyrinth {
         return this.#playerPositionX;
     }
     
-    set playerPositionX(value) {
-        this.#playerPositionX = value;
-    }
-    
     get playerPositionY() {
         return this.#playerPositionY;
     }
     
-    set playerPositionY(value) {
-        this.#playerPositionY = value;
-    }
-
     /**
      * 迷路を作成する。
      */
@@ -135,7 +128,7 @@ class labyrinth {
     updatePlayerMaze() {
         // プレイヤーを中心として上下左右1マスを表示する
         // そのマスに何もなければ、そのマスの上下左右1マスを表示する
-        this.watchAroundPosition(this.#playerPositionX, this.#playerPositionY, 2);
+        this.watchAroundPosition(this.#playerPositionX, this.#playerPositionY, 2, false);
     }
 
     /**
@@ -144,32 +137,33 @@ class labyrinth {
      * @param {中心となるX座標} x 
      * @param {中心となるY座標} y 
      * @param {確認範囲マス数} cycle 
+     * @param {壁を透過するか} transparentFlag
      */
-    watchAroundPosition(x, y, cycle) {
+    watchAroundPosition(x, y, cycle, transparentFlag) {
         if (cycle > 0) {
             cycle -= 1;
             if (y < labyrinth.Y_SIZE) {
                 this.#playerViewMaze[y + 1][x] = this.#masterViewMaze[y + 1][x];
-                if (this.#masterViewMaze[y + 1][x] === labyrinth.NONE) {
-                    this.watchAroundPosition(x, y + 1, cycle);
+                if (this.#masterViewMaze[y + 1][x] === labyrinth.NONE || transparentFlag) {
+                    this.watchAroundPosition(x, y + 1, cycle, transparentFlag);
                 }
             }
             if (y > 0) {
                 this.#playerViewMaze[y - 1][x] = this.#masterViewMaze[y - 1][x];
-                if (this.#masterViewMaze[y - 1][x] === labyrinth.NONE) {
-                    this.watchAroundPosition(x, y - 1, cycle);
+                if (this.#masterViewMaze[y - 1][x] === labyrinth.NONE || transparentFlag) {
+                    this.watchAroundPosition(x, y - 1, cycle, transparentFlag);
                 }
             }
             if (x < labyrinth.X_SIZE) {
                 this.#playerViewMaze[y][x + 1] = this.#masterViewMaze[y][x + 1];
-                if (this.#masterViewMaze[y][x + 1] === labyrinth.NONE) {
-                    this.watchAroundPosition(x + 1, y, cycle);
+                if (this.#masterViewMaze[y][x + 1] === labyrinth.NONE || transparentFlag) {
+                    this.watchAroundPosition(x + 1, y, cycle, transparentFlag);
                 }
             }
             if (x > 0) {
                 this.#playerViewMaze[y][x - 1] = this.#masterViewMaze[y][x - 1];
-                if (this.#masterViewMaze[y][x - 1] === labyrinth.NONE) {
-                    this.watchAroundPosition(x - 1, y, cycle);
+                if (this.#masterViewMaze[y][x - 1] === labyrinth.NONE || transparentFlag) {
+                    this.watchAroundPosition(x - 1, y, cycle, transparentFlag);
                 }
             }
         }
@@ -202,7 +196,7 @@ class labyrinth {
     }
 
     /**
-     * 移動先のマス情報を取得する。
+     * 向き先のマス情報を取得する。
      * 
      * @param {押下したキー} key
      * @return マス情報
@@ -219,6 +213,71 @@ class labyrinth {
                 return this.#masterViewMaze[this.#playerPositionY][this.#playerPositionX + 1];
             default:
                 return labyrinth.NONE;
+        }
+    }
+
+    /**
+     * 壁を壊す。
+     * 
+     * @returns 壁を壊したか
+     */
+    breakWall() {
+        switch(this.#masterViewMaze[this.#playerPositionY][this.#playerPositionX]) {
+            case labyrinth.PLAYER_FORWARD:
+                if (this.getPlayerDestination("w") === labyrinth.WALL && this.#playerPositionY - 1 > 0) {
+                    this.#masterViewMaze[this.#playerPositionY - 1][this.#playerPositionX] = labyrinth.NONE;
+                    this.#playerViewMaze[this.#playerPositionY - 1][this.#playerPositionX] = labyrinth.NONE;
+                    return true;
+                }
+                break;
+            case labyrinth.PLAYER_DOWNWARD:
+                if (this.getPlayerDestination("s") === labyrinth.WALL && this.#playerPositionY + 1 < labyrinth.Y_SIZE) {
+                    this.#masterViewMaze[this.#playerPositionY + 1][this.#playerPositionX] = labyrinth.NONE;
+                    this.#playerViewMaze[this.#playerPositionY + 1][this.#playerPositionX] = labyrinth.NONE;
+                    return true;
+                }
+                break;
+            case labyrinth.PLAYER_LEFT:
+                if (this.getPlayerDestination("a") === labyrinth.WALL && this.#playerPositionX - 1 > 0) {
+                    this.#masterViewMaze[this.#playerPositionY][this.#playerPositionX - 1] = labyrinth.NONE;
+                    this.#playerViewMaze[this.#playerPositionY][this.#playerPositionX - 1] = labyrinth.NONE;
+                    return true;
+                }
+                break;
+            case labyrinth.PLAYER_RIGHT:
+                if (this.getPlayerDestination("d") === labyrinth.WALL && this.#playerPositionX + 1 < labyrinth.X_SIZE) {
+                    this.#masterViewMaze[this.#playerPositionY][this.#playerPositionX + 1] = labyrinth.NONE;
+                    this.#playerViewMaze[this.#playerPositionY][this.#playerPositionX + 1] = labyrinth.NONE;
+                    return true;
+                }
+                break;
+        }
+        return false;
+    }
+
+    /**
+     * 照明弾を反映する。
+     */
+    effectFlare() {
+        var x = this.#playerPositionX;
+        var y = this.#playerPositionY;
+        switch(this.#masterViewMaze[this.#playerPositionY][this.#playerPositionX]) {
+            case labyrinth.PLAYER_FORWARD:
+                while (this.#masterViewMaze[--y][x] !== labyrinth.WALL);
+                this.watchAroundPosition(x, y, labyrinth.FLARE_DIST, true);
+                break;
+            case labyrinth.PLAYER_DOWNWARD:
+                while (this.#masterViewMaze[++y][x] !== labyrinth.WALL);
+                this.watchAroundPosition(x, y, labyrinth.FLARE_DIST, true);
+                break;
+            case labyrinth.PLAYER_LEFT:
+                while (this.#masterViewMaze[y][--x] !== labyrinth.WALL);
+                this.watchAroundPosition(x, y, labyrinth.FLARE_DIST, true);
+                break;
+            case labyrinth.PLAYER_RIGHT:
+                while (this.#masterViewMaze[y][++x] !== labyrinth.WALL);
+                this.watchAroundPosition(x, y, labyrinth.FLARE_DIST, true);
+                break;
         }
     }
 }

@@ -1,16 +1,21 @@
-span {
+span#maze {
     font-size: 12px;
 }
-li {
+ul li {
     list-style: none;
 }
+
+ol {
+    margin: 0 auto 0;
+}
+
 #layout {
     width: 1000px;
     display: grid;
     grid-template-columns: 3fr 1fr;
 }
 
-#status {
+#effectLog {
     grid-column-start: 1;
     grid-column-end: 5;
 }
