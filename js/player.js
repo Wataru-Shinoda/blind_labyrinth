@@ -1,4 +1,4 @@
-class player {
+class Player {
     static MAX_HP = 100; // 最大体力
     static MAX_EQUIP_ITEM = 3; // 最大所持アイテム数
 
@@ -7,8 +7,8 @@ class player {
     #itemList; // 所持アイテムリスト
 
     constructor() {
-        this.#hp = player.MAX_HP;
-        this.#itemList = [item.BOMB, item.FLARE, item.NONE];
+        this.#hp = Player.MAX_HP;
+        this.#itemList = [Item.BOMB, Item.FLARE, Item.NONE];
     }
 
     /**
@@ -25,7 +25,7 @@ class player {
      */
     toDisplay() {
         return "<div>" 
-            + "<div>体力:" + String(this.#hp).padStart(String(player.MAX_HP).length, '0') + "</div>" 
+            + "<div>体力:" + String(this.#hp).padStart(String(Player.MAX_HP).length, '0') + "</div>" 
             + "<div>アイテムリスト:<ol><li>" + this.#itemList.toString().replaceAll(",","</li><li>") + "</ol>"
             + "</div>"
     }
@@ -46,17 +46,17 @@ class player {
      * @param {プレイヤーが存在する迷宮} lbr
      */
     useItem(index, lbr) {
-        const result = item.itemMap.filter(e => e === this.#itemList[index - 1]).toString();
+        const result = Item.itemMap.filter(e => e === this.#itemList[index - 1]).toString();
         switch (result) {
-            case item.BOMB:
+            case Item.BOMB:
                 if (lbr.breakWall()) {
-                    this.#itemList[index - 1] = item.NONE;
+                    this.#itemList[index - 1] = Item.NONE;
                     return true;
                 }
                 break;
-            case item.FLARE:
+            case Item.FLARE:
                 lbr.effectFlare();
-                this.#itemList[index - 1] = item.NONE;
+                this.#itemList[index - 1] = Item.NONE;
                 return true;
             default:
                 return false;

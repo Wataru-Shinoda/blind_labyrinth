@@ -7,29 +7,35 @@ document.addEventListener("DOMContentLoaded", (event) => {
 });
 
 document.addEventListener("keydown", (e) => {
-    if ((e.key === "w"  || e.key === "s" || e.key === "a" || e.key === "d") && !systemTalkFlag) {
+    const key = e.key.toLowerCase();
+    if ((key === "w"  || key === "s" || key === "a" || key === "d") && !systemTalkFlag) {
         document.getElementById("effectLog").innerHTML = "";
-        const toMoveMass = lbr.getPlayerDestination(e.key);
-        if (toMoveMass !== labyrinth.WALL) {
-            ply.move();
-            lbr.movePlayerPosition(e.key);
-            lbr.updatePlayerMaze();
-            if (toMoveMass === labyrinth.GOAL) {
-                alert("ゲームクリア!");
-                initDisplay();
-            }
-            else if (ply.isDead()) {
-                alert("ゲームオーバー");
-                initDisplay();
+        if (e.shiftKey) {
+            lbr.changePlayerDirection(key);
+        }
+        else {
+            const toMoveMass = lbr.getPlayerDestination(key);
+            if (toMoveMass !== Labyrinth.WALL) {
+                ply.move();
+                lbr.movePlayerPosition(key);
+                lbr.updatePlayerMaze();
+                if (toMoveMass === Labyrinth.GOAL) {
+                    alert("ゲームクリア!");
+                    initDisplay();
+                }
+                else if (ply.isDead()) {
+                    alert("ゲームオーバー");
+                    initDisplay();
+                }
             }
         }
     }
-    else if (e.key === "e" && !systemTalkFlag) {
+    else if (key === "e" && !systemTalkFlag) {
         document.getElementById("effectLog").innerHTML = "使用するアイテムを選択してください(1,2,3)";
         systemTalkFlag = true;
     }
-    else if ((e.key === "1" || e.key === "2" || e.key === "3" || e.key === "e") && systemTalkFlag) {
-        if (ply.useItem(Number(e.key), lbr) || e.key === "e") {
+    else if ((key === "1" || key === "2" || key === "3" || key === "e") && systemTalkFlag) {
+        if (ply.useItem(Number(key), lbr) || key === "e") {
             document.getElementById("effectLog").innerHTML = "";
         }
         else {
@@ -42,8 +48,8 @@ document.addEventListener("keydown", (e) => {
 });
 
 function initDisplay() {
-    lbr = new labyrinth();
-    ply = new player();
+    lbr = new Labyrinth();
+    ply = new Player();
     lbr.updatePlayerMaze();
     document.getElementById("maze").innerHTML = lbr.toDisplay();
     document.getElementById("status").innerHTML = ply.toDisplay();
