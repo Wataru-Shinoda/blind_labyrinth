@@ -72,11 +72,11 @@ class labyrinth {
         this.#playerViewMaze[this.#playerPositionY][this.#playerPositionX] = labyrinth.PLAYER_DOWNWARD;
 
         // ゴールを迷路に配置する
-        const goalPositonXRange = [...Array(labyrinth.X_SIZE - 1)]
+        const goalPositonXRange = [...Array(labyrinth.X_SIZE - 2)]
             .map((_, i) => i + 1)
             .filter((e) => e < this.#playerPositionX - labyrinth.GOAL_DIST 
             || this.#playerPositionX + labyrinth.GOAL_DIST < e );
-        const goalPositonYRange = [...Array(labyrinth.Y_SIZE - 1)]
+        const goalPositonYRange = [...Array(labyrinth.Y_SIZE - 2)]
             .map((_, i) => i + 1)
             .filter((e) => e < this.#playerPositionY - labyrinth.GOAL_DIST 
             || this.#playerPositionY + labyrinth.GOAL_DIST < e );
@@ -120,7 +120,7 @@ class labyrinth {
      * 
      * @returns ブラウザ表示用迷路
      */
-    toInitDisplay() {
+    toDisplay() {
         let tmp = [];
         let rtn;
         this.#playerViewMaze.forEach((e) => tmp.push("<li>" + e.toString().replaceAll(",","")));
@@ -176,24 +176,6 @@ class labyrinth {
     }
 
     /**
-     * 引数のマスが壁でないか調べる。
-     * 
-     * @param {調査したいX座標} x 
-     * @param {調査したいY座標} y 
-     * @returns 壁でないか
-     */
-    isNotWall(x, y) {
-        return this.#masterViewMaze[y][x] !== labyrinth.WALL;
-    }
-
-    /**
-     * プレイヤーがいるマスがゴールか調べる。
-     */
-    isGoal() {
-        return this.#masterViewMaze[this.#playerPositionY][this.#playerPositionX] === labyrinth.GOAL;
-    }
-
-    /**
      * プレイヤーを移動する。
      * 
      * @param {押下したキー} key 
@@ -216,6 +198,27 @@ class labyrinth {
                 this.#masterViewMaze[this.#playerPositionY][this.#playerPositionX] = labyrinth.NONE;
                 this.#masterViewMaze[this.#playerPositionY][++this.#playerPositionX] = labyrinth.PLAYER_RIGHT;
                 break;
+        }
+    }
+
+    /**
+     * 移動先のマス情報を取得する。
+     * 
+     * @param {押下したキー} key
+     * @return マス情報
+     */
+    getPlayerDestination(key) {
+        switch(key) {
+            case "w":
+                return this.#masterViewMaze[this.#playerPositionY - 1][this.#playerPositionX];
+            case "s":
+                return this.#masterViewMaze[this.#playerPositionY + 1][this.#playerPositionX];
+            case "a":
+                return this.#masterViewMaze[this.#playerPositionY][this.#playerPositionX - 1];
+            case "d":
+                return this.#masterViewMaze[this.#playerPositionY][this.#playerPositionX + 1];
+            default:
+                return labyrinth.NONE;
         }
     }
 }

@@ -1,26 +1,28 @@
-var lbr = new labyrinth();
-var ply = new player();
+var lbr;
+var ply;
 
 document.addEventListener("DOMContentLoaded", (event) => {
-    lbr.updatePlayerMaze();
-    document.getElementById("maze").innerHTML = lbr.toInitDisplay();
-    // document.getElementById("maze").innerHTML = '1<br>2';
+    initDisplay();
 });
 
 document.addEventListener("keydown", (e) => {
-    if ((e.key === "w" && lbr.isNotWall(lbr.playerPositionX, lbr.playerPositionY - 1))
-        || (e.key === "s" && lbr.isNotWall(lbr.playerPositionX, lbr.playerPositionY + 1))
-        || (e.key === "a" && lbr.isNotWall(lbr.playerPositionX - 1, lbr.playerPositionY))
-        || (e.key === "d" && lbr.isNotWall(lbr.playerPositionX + 1, lbr.playerPositionY))) {
+    if (e.key === "w"  || e.key === "s" || e.key === "a" || e.key === "d" ) {
+        const toMoveMass = lbr.getPlayerDestination(e.key);
+        if (toMoveMass !== labyrinth.WALL) {
             lbr.movePlayerPosition(e.key);
             lbr.updatePlayerMaze();
-            document.getElementById("maze").innerHTML = lbr.toInitDisplay();
-            
-            if (lbr.isGoal()) {
+            document.getElementById("maze").innerHTML = lbr.toDisplay();
+            if (toMoveMass === labyrinth.GOAL) {
                 alert("ゲームクリア!");
-                lbr = new labyrinth();
-                ply = new player();
+                initDisplay();
             }
+        }
     }
-})
+});
 
+function initDisplay() {
+    lbr = new labyrinth();
+    ply = new player();
+    lbr.updatePlayerMaze();
+    document.getElementById("maze").innerHTML = lbr.toDisplay();
+}
