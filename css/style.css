@@ -1,0 +1,16 @@
+span {
+    font-size: 12px;
+}
+li {
+    list-style: none;
+}
+#layout {
+    width: 1000px;
+    display: grid;
+    grid-template-columns: 3fr 1fr;
+}
+
+#status {
+    grid-column-start: 1;
+    grid-column-end: 5;
+}
