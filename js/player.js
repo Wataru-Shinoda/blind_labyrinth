@@ -24,9 +24,14 @@ class Player {
      * @returns プレイヤー情報
      */
     toDisplay() {
-        return "<div>" 
-            + "<div>体力:" + String(this.#hp).padStart(String(Player.MAX_HP).length, '0') + "</div>" 
-            + "<div>アイテムリスト:<ol><li>" + this.#itemList.toString().replaceAll(",","</li><li>") + "</ol>"
+        return "<div class='boxName'>ステータス</div>" 
+            + "<div class='item'>"
+            + "<span>体力</span>"
+            + "<span>" + String(this.#hp).padStart(String(Player.MAX_HP).length, '0') + "/" + String(Player.MAX_HP) + "</span>"
+            + "</div>" 
+            + "<div class='item'>"
+            + "<span>所持アイテム</span>"
+            + "<span><ol><li>" + this.#itemList.toString().replaceAll(",","</li><li>") + "</ol></span>"
             + "</div>"
     }
 
@@ -44,6 +49,7 @@ class Player {
      * 
      * @param {使用するアイテム番号} index
      * @param {プレイヤーが存在する迷宮} lbr
+     * @returns 使用アイテム名
      */
     useItem(index, lbr) {
         const result = Item.itemMap.filter(e => e === this.#itemList[index - 1]).toString();
@@ -51,17 +57,17 @@ class Player {
             case Item.BOMB:
                 if (lbr.breakWall()) {
                     this.#itemList[index - 1] = Item.NONE;
-                    return true;
+                    return Item.BOMB;
                 }
                 break;
             case Item.FLARE:
                 lbr.effectFlare();
                 this.#itemList[index - 1] = Item.NONE;
-                return true;
+                return Item.FLARE;
             default:
-                return false;
+                return "";
         }
-        return false;
+        return "";
     }
 
     /**

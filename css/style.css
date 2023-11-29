@@ -1,12 +1,24 @@
+body {
+    color: white;
+    background-color: #000000;
+}
+
 span#maze {
     font-size: 12px;
+    text-align: center;
 }
+
+ul {
+    padding: 0;
+}
+
 ul li {
     list-style: none;
 }
 
 ol {
     margin: 0 auto 0;
+    padding-left: 20px;
 }
 
 #layout {
@@ -15,7 +27,41 @@ ol {
     grid-template-columns: 3fr 1fr;
 }
 
+.layout_field {
+    margin: 10px;
+}
+
+#maze {
+    grid-row: 1 / 4;
+}
+
+#status {
+    grid-row: 1 / 2;
+}
+
+#keyConfig {
+    grid-row: 2 / 3;
+}
+
+#mapInfo {
+    grid-row: 3 / 4;
+}
+
+.item {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+}
+
+.boxName {
+    font-weight: bold;
+    text-align: center;
+}
+
 #effectLog {
-    grid-column-start: 1;
-    grid-column-end: 5;
+    grid-column: 1 / 5;
+    grid-row-start: 5;
+    grid-row-end: 5;
+    height: 100px;
+    padding: 5px;
+    border: solid;
 }

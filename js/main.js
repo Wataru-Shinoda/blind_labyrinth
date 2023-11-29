@@ -8,6 +8,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
 
 document.addEventListener("keydown", (e) => {
     const key = e.key.toLowerCase();
+    let effectLogMessage = "";
     if ((key === "w"  || key === "s" || key === "a" || key === "d") && !systemTalkFlag) {
         document.getElementById("effectLog").innerHTML = "";
         if (e.shiftKey) {
@@ -33,19 +34,25 @@ document.addEventListener("keydown", (e) => {
             }
         }
     }
-    else if (key === "e" && !systemTalkFlag) {
-        document.getElementById("effectLog").innerHTML = "使用するアイテムを選択してください(1,2,3)";
-        systemTalkFlag = true;
-    }
-    else if ((key === "1" || key === "2" || key === "3" || key === "e") && systemTalkFlag) {
-        if (ply.useItem(Number(key), lbr) || key === "e") {
-            document.getElementById("effectLog").innerHTML = "";
+    else if (key === "e") {
+        if (!systemTalkFlag) {
+            effectLogMessage = "使用するアイテムを選択してください(1,2,3)";
+            systemTalkFlag = true;
         }
         else {
-            document.getElementById("effectLog").innerHTML = "選択したアイテムを使用できませんでした";
+            systemTalkFlag = false;
+        }
+
+    }
+    else if ((key === "1" || key === "2" || key === "3") && systemTalkFlag) {
+        const usedItem = ply.useItem(Number(key), lbr);
+        effectLogMessage = "選択したアイテムを使用できませんでした";
+        if (usedItem) {
+            effectLogMessage = usedItem + "を使用しました";
         }
         systemTalkFlag = false;
     }
+    document.getElementById("effectLog").innerHTML = effectLogMessage;
     document.getElementById("maze").innerHTML = lbr.toDisplay();
     document.getElementById("status").innerHTML = ply.toDisplay();
 });
