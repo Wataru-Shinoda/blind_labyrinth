@@ -63,4 +63,18 @@ class Player {
         }
         return false;
     }
+
+    /**
+     * アイテムを取得する。
+     */
+    getItem(lbr) {
+        const noneIndex = this.#itemList.findIndex(e => e === Item.NONE);
+        if (noneIndex >= 0) {
+            const tmp = Item.itemMap.filter(e => e !== Item.NONE);
+            this.#itemList[noneIndex] = tmp[Math.floor(Math.random() * tmp.length)];
+        }
+        else {
+            lbr.itemRemainFlag = true;
+        }
+    }
 }

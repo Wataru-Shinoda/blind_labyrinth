@@ -1,6 +1,6 @@
-var lbr;
-var ply;
-var systemTalkFlag = false;
+let lbr;
+let ply;
+let systemTalkFlag = false;
 
 document.addEventListener("DOMContentLoaded", (event) => {
     initDisplay();
@@ -26,6 +26,9 @@ document.addEventListener("keydown", (e) => {
                 else if (ply.isDead()) {
                     alert("ゲームオーバー");
                     initDisplay();
+                }
+                else if (toMoveMass === Labyrinth.ITEM) {
+                    ply.getItem(lbr);
                 }
             }
         }
