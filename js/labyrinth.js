@@ -30,14 +30,6 @@ class Labyrinth {
         this.generateMaze();
     }
 
-    get playerPositionX() {
-        return this.#playerPositionX;
-    }
-    
-    get playerPositionY() {
-        return this.#playerPositionY;
-    }
-    
     set itemRemainFlag(value) {
         this.#itemRemainFlag = value;
     }
@@ -46,22 +38,15 @@ class Labyrinth {
      * 迷路を作成する。
      */
     generateMaze() {
-        // 外周と1マスごとに壁を配置する
+        // 外周に壁を配置する
         for (let y = 0; y < Labyrinth.Y_SIZE; y++) {
             this.#masterViewMaze[y] = [];
-            this.#playerViewMaze[y] = [];
             for (let x = 0; x < Labyrinth.X_SIZE; x++) {
                 if (y === 0 || y === Labyrinth.Y_SIZE - 1 || x === 0 || x === Labyrinth.X_SIZE - 1) {
                     this.#masterViewMaze[y][x] = Labyrinth.WALL;
-                    this.#playerViewMaze[y][x] = Labyrinth.WALL;
-                }
-                else if (y % 2 === 0 && x % 2 === 0) {
-                    this.#masterViewMaze[y][x] = Labyrinth.WALL;
-                    this.#playerViewMaze[y][x] = Labyrinth.NONE;
                 }
                 else {
                     this.#masterViewMaze[y][x] = Labyrinth.NONE;
-                    this.#playerViewMaze[y][x] = Labyrinth.NONE;
                 }
             }
         }
@@ -70,7 +55,6 @@ class Labyrinth {
         this.#playerPositionX = Math.floor(Math.random() * ((Labyrinth.X_SIZE - 1) / 2)) * 2 + 1;
         this.#playerPositionY = Math.floor(Math.random() * ((Labyrinth.Y_SIZE - 1) / 2)) * 2 + 1;
         this.#masterViewMaze[this.#playerPositionY][this.#playerPositionX] = Labyrinth.PLAYER_DOWNWARD;
-        this.#playerViewMaze[this.#playerPositionY][this.#playerPositionX] = Labyrinth.PLAYER_DOWNWARD;
 
         // ゴールを迷路に配置する
         const goalPositionXRange = [...Array(Labyrinth.X_SIZE - 2)]
@@ -89,7 +73,22 @@ class Labyrinth {
             goalPositionY = tmpGoalPositionRange[Math.floor(Math.random() * tmpGoalPositionRange.length)];
         }
         this.#masterViewMaze[goalPositionY][goalPositionX] = Labyrinth.GOAL;
-        this.#playerViewMaze[goalPositionY][goalPositionX] = Labyrinth.GOAL;
+
+        // 確率で迷路生成ロジックを変化させる
+        const arcMatrixFlag = Math.floor(Math.random() * 2);
+        // 確率で迷路を反転させる
+        const flipFlag = Math.floor(Math.random() * 2);
+        this.#playerViewMaze = JSON.parse(JSON.stringify(this.#masterViewMaze));
+        if (flipFlag) {
+            // プレイヤーの座標を反転後の座標に合わせる
+            if (arcMatrixFlag) {
+                this.#playerPositionX = Labyrinth.X_SIZE - this.#playerPositionX - 1;
+            }
+            else {
+                this.#playerPositionY = Labyrinth.Y_SIZE - this.#playerPositionY - 1;
+            }
+            this.#playerViewMaze = this.flip2DArray(this.#playerViewMaze, arcMatrixFlag);
+        }
 
         // アイテムを迷路に配置する
         let itemPositionXRange = [...goalPositionXRange].filter(e => e != goalPositionX);
@@ -109,34 +108,45 @@ class Labyrinth {
 
         // 棒倒し法で迷路を作成する
         // 内壁を棒と見立てる
-        let dir = 4;
         for (let y = 2; y < Labyrinth.Y_SIZE - 2; y+=2) {
+            // 内壁の2段目以降は指定方向に棒を倒してはいけないため、方向の種類を調整する
+            let dir = 3;
+            let dirContFlag = 0;
             for (let x = 2; x < Labyrinth.X_SIZE - 2; x+=2) {
-                switch (Math.floor(Math.random() * dir)) {
-                    case 0:
-                        if (this.#masterViewMaze[y][x+1] === Labyrinth.NONE) {
-                            this.#masterViewMaze[y][x+1] = Labyrinth.WALL;
-                            break;
-                        }
-                    case 1:
+                this.#masterViewMaze[y][x] = Labyrinth.WALL;
+                if (y === 2 && !arcMatrixFlag || x === 2 && arcMatrixFlag) {
+                    dir = 4;
+                }
+                else if (arcMatrixFlag) { 
+                    dirContFlag = 1;
+                }
+                switch (Math.floor(Math.random() * dir) + dirContFlag) {
+                    case 0: // 左
                         if (this.#masterViewMaze[y][x-1] === Labyrinth.NONE) {
                             this.#masterViewMaze[y][x-1] = Labyrinth.WALL;
                             break;
                         }
-                    case 2:
+                    case 1: // 右
+                        if (this.#masterViewMaze[y][x+1] === Labyrinth.NONE) {
+                            this.#masterViewMaze[y][x+1] = Labyrinth.WALL;
+                            break;
+                        }
+                    case 3: // 上
+                        if (this.#masterViewMaze[y-1][x] === Labyrinth.NONE) {
+                            this.#masterViewMaze[y-1][x] = Labyrinth.WALL;
+                            break;
+                        }
+                    default: // 下
                         if (this.#masterViewMaze[y+1][x] !== Labyrinth.ITEM
                             && this.#masterViewMaze[y+1][x] !== Labyrinth.GOAL) {
                                 this.#masterViewMaze[y+1][x] = Labyrinth.WALL;
                         }
-                        break;
-                    case 3:
-                        this.#masterViewMaze[y-1][x] = Labyrinth.WALL;
-                        break;
-                    default:
                 }
             }
-            // 内壁の2行目以降は上に棒を倒してはいけないため、方向の種類を調整する
-            dir = 3;
+        }
+
+        if (flipFlag) {
+            this.#masterViewMaze = this.flip2DArray(this.#masterViewMaze, arcMatrixFlag);
         }
     }
     
@@ -264,7 +274,7 @@ class Labyrinth {
                 }
                 break;
             case Labyrinth.PLAYER_DOWNWARD:
-                if (this.getPlayerDestination("s") === Labyrinth.WALL && this.#playerPositionY + 1 < Labyrinth.Y_SIZE) {
+                if (this.getPlayerDestination("s") === Labyrinth.WALL && this.#playerPositionY + 1 < Labyrinth.Y_SIZE - 1) {
                     this.#masterViewMaze[this.#playerPositionY + 1][this.#playerPositionX] = Labyrinth.NONE;
                     this.#playerViewMaze[this.#playerPositionY + 1][this.#playerPositionX] = Labyrinth.NONE;
                     return true;
@@ -278,7 +288,7 @@ class Labyrinth {
                 }
                 break;
             case Labyrinth.PLAYER_RIGHT:
-                if (this.getPlayerDestination("d") === Labyrinth.WALL && this.#playerPositionX + 1 < Labyrinth.X_SIZE) {
+                if (this.getPlayerDestination("d") === Labyrinth.WALL && this.#playerPositionX + 1 < Labyrinth.X_SIZE - 1) {
                     this.#masterViewMaze[this.#playerPositionY][this.#playerPositionX + 1] = Labyrinth.NONE;
                     this.#playerViewMaze[this.#playerPositionY][this.#playerPositionX + 1] = Labyrinth.NONE;
                     return true;
@@ -339,5 +349,35 @@ class Labyrinth {
                 break;
             default:
         }
+    }
+
+    /**
+     * 二次元配列を上下または左右の反転させる
+     * 
+     * @param {二次元配列} array
+     * @param {上下または左右を定める} flag
+     * @returns {反転後の二次元配列}
+     */
+    flip2DArray(array, flag) {
+        // 左右反転
+        if (flag) {
+            console.log("左右反転");
+            const tmp = [];
+            for (var y = 0; y < array.length; y++) {
+                const row = [];
+                for (var x = Labyrinth.X_SIZE - 1; x >= 0; x--) {
+                    row.push(array[y][x]);
+                }
+                tmp.push(row);
+            }
+            return JSON.parse(JSON.stringify(tmp));
+        }
+        // 上下反転
+        else {
+            console.log("上下反転");
+            const tmp = [...array].map((_, i) => array[array.length - i - 1]);
+            return JSON.parse(JSON.stringify(tmp));
+        }
+        
     }
 }

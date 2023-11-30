@@ -52,9 +52,9 @@ document.addEventListener("keydown", (e) => {
         }
         systemTalkFlag = false;
     }
-    document.getElementById("effectLog").innerHTML = effectLogMessage;
     document.getElementById("maze").innerHTML = lbr.toDisplay();
     document.getElementById("status").innerHTML = ply.toDisplay();
+    document.getElementById("effectLog").innerHTML = effectLogMessage;
 });
 
 function initDisplay() {
