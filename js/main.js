@@ -1,6 +1,7 @@
 let lbr;
 let ply;
 let systemTalkFlag = false;
+let effectLogMessage = "";
 
 document.addEventListener("DOMContentLoaded", (event) => {
     initDisplay();
@@ -8,9 +9,8 @@ document.addEventListener("DOMContentLoaded", (event) => {
 
 document.addEventListener("keydown", (e) => {
     const key = e.key.toLowerCase();
-    let effectLogMessage = "";
     if ((key === "w"  || key === "s" || key === "a" || key === "d") && !systemTalkFlag) {
-        document.getElementById("effectLog").innerHTML = "";
+        effectLogMessage = "";
         if (e.shiftKey) {
             lbr.changePlayerDirection(key);
         }
@@ -40,6 +40,7 @@ document.addEventListener("keydown", (e) => {
             systemTalkFlag = true;
         }
         else {
+            effectLogMessage = "";
             systemTalkFlag = false;
         }
 
