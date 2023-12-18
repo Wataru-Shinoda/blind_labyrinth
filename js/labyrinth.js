@@ -153,7 +153,7 @@ class Labyrinth {
     /**
      * ブラウザに表示できる迷路を出力する。
      * 
-     * @returns ブラウザ表示用迷路
+     * @returns {string} ブラウザ表示用迷路
      */
     toDisplay() {
         let tmp = [];
@@ -176,10 +176,10 @@ class Labyrinth {
     /**
      * 与えられた座標を中心として上下左右1マスを表示する
      * 
-     * @param {中心となるX座標} x 
-     * @param {中心となるY座標} y 
-     * @param {確認範囲マス数} cycle 
-     * @param {壁を透過するか} transparentFlag
+     * @param {number} x 中心となるX座標
+     * @param {number} y 中心となるY座標
+     * @param {number} cycle 確認範囲マス数
+     * @param {boolean} transparentFlag 壁を透過するか
      */
     watchAroundPosition(x, y, cycle, transparentFlag) {
         if (cycle > 0) {
@@ -214,7 +214,7 @@ class Labyrinth {
     /**
      * プレイヤーを移動する。
      * 
-     * @param {押下したキー} key 
+     * @param {string} key 押下したキー
      */
     movePlayerPosition(key) {
         this.#masterViewMaze[this.#playerPositionY][this.#playerPositionX] = Labyrinth.NONE;
@@ -241,7 +241,7 @@ class Labyrinth {
     /**
      * 向き先のマス情報を取得する。
      * 
-     * @param {押下したキー} key
+     * @param {string} key 押下したキー
      * @return マス情報
      */
     getPlayerDestination(key) {
@@ -327,7 +327,7 @@ class Labyrinth {
     /**
      * プレイヤーを方向転換する。
      * 
-     * @param {押下したキー} key 
+     * @param {string} key 押下したキー
      */
     changePlayerDirection(key) {
         switch(key) {
@@ -354,9 +354,9 @@ class Labyrinth {
     /**
      * 二次元配列を上下または左右の反転させる
      * 
-     * @param {二次元配列} array
-     * @param {上下または左右を定める} flag
-     * @returns {反転後の二次元配列}
+     * @param {List[][]} array 二次元配列
+     * @param {boolena} flag 上下または左右を定める
+     * @returns 反転後の二次元配列
      */
     flip2DArray(array, flag) {
         // 左右反転

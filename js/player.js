@@ -47,8 +47,8 @@ class Player {
     /**
      * 所持しているアイテムを使用する
      * 
-     * @param {使用するアイテム番号} index
-     * @param {プレイヤーが存在する迷宮} lbr
+     * @param {Number} index 使用するアイテム番号
+     * @param {Labyrinth} lbr プレイヤーが存在する迷宮
      * @returns 使用アイテム名
      */
     useItem(index, lbr) {
@@ -72,6 +72,8 @@ class Player {
 
     /**
      * アイテムを取得する。
+     * 
+     * @param {Labyrinth} lbr プレイヤーが存在する迷宮
      */
     getItem(lbr) {
         const noneIndex = this.#itemList.findIndex(e => e === Item.NONE);
